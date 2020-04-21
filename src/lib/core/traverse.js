@@ -40,7 +40,8 @@ function traverse(schema, path, resolve, rootSchema) {
 
     // build new object value from not-schema!
     if (schema.type && schema.type === 'object') {
-      return traverse(schema, path.concat(['not']), resolve, rootSchema);
+      const traverseResult = traverse(schema, path.concat(['not']), resolve, rootSchema);
+      return utils.clean(traverseResult, schema.required || [], false);
     }
   }
 
@@ -54,7 +55,8 @@ function traverse(schema, path, resolve, rootSchema) {
 
   // thunks can return sub-schemas
   if (typeof schema.thunk === 'function') {
-    return traverse(schema.thunk(rootSchema), path, resolve);
+    const traverseResult = traverse(schema.thunk(rootSchema), path, resolve);
+    return utils.clean(traverseResult, schema.required || [], false);
   }
 
   if (typeof schema.generate === 'function') {
@@ -107,7 +109,7 @@ function traverse(schema, path, resolve, rootSchema) {
 
   Object.keys(schema).forEach(prop => {
     if (typeof schema[prop] === 'object' && prop !== 'definitions') {
-      copy[prop] = traverse(schema[prop], path.concat([prop]), resolve, copy);
+      copy[prop] = utils.clean(traverse(schema[prop], path.concat([prop]), resolve, copy), schema[prop].required || [], false);
     } else {
       copy[prop] = schema[prop];
     }
