@@ -12,7 +12,7 @@
 .nyc_output
 .DS_Store
 /lib
-/dist
+#/dist
 /build
 /package
 /reports
