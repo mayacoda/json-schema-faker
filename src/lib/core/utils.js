@@ -168,7 +168,11 @@ function typecast(type, schema, callback) {
   return value;
 }
 
-function merge(a, b) {
+function merge(a, b, seen) {
+  if (seen === undefined) seen = new Set();
+  if (seen.has(b)) return a;
+
+  seen.add(b);
   Object.keys(b).forEach(key => {
     if (typeof b[key] !== 'object' || b[key] === null) {
       a[key] = b[key];
@@ -181,9 +185,9 @@ function merge(a, b) {
         }
       });
     } else if (typeof a[key] !== 'object' || a[key] === null || Array.isArray(a[key])) {
-      a[key] = merge({}, b[key]);
+      a[key] = merge({}, b[key], seen);
     } else {
-      a[key] = merge(a[key], b[key]);
+      a[key] = merge(a[key], b[key], seen);
     }
   });
 
